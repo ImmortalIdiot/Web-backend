@@ -10,16 +10,12 @@ public class HttpServer {
     }
 
     public void startServer() {
-        try (
-                var serverSocket = new
-                        ServerSocket(this.tcpPort);
-        ) {
+        try (var serverSocket = new ServerSocket(this.tcpPort)) {
             System.out.println("Server accepting requests on port " + tcpPort);
 
             while (true) {
                 var acceptedSocket = serverSocket.accept();
-                var connectionHandler = new
-                        ConnectionHandler(acceptedSocket);
+                var connectionHandler = new ConnectionHandler(acceptedSocket);
                 connectionHandler.handle();
             }
         } catch (IOException e) {
