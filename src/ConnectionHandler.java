@@ -14,7 +14,7 @@ public class ConnectionHandler {
             Content-Disposition: attachment; filename="content.txt"
             """;
 
-    private static final String JSON = "{k: 'v'}";
+    private static final String JSON = "{ student: 'Krasulya Maxim'}";
 
     private final Socket socket;
 
