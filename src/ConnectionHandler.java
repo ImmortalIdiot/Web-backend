@@ -61,21 +61,19 @@ public class ConnectionHandler {
     }
 
     private void sendJson(BufferedWriter bufferedWriter) throws IOException {
-        bufferedWriter.write(OK_HTTP);
-        bufferedWriter.write("Content-Length: " + JSON.length() + "\n");
-        bufferedWriter.write(JSON_CONTENT_TYPE);
-        bufferedWriter.newLine();
-        bufferedWriter.write(JSON);
-        bufferedWriter.newLine();
-        bufferedWriter.flush();
+        writeContent(bufferedWriter, JSON, JSON_CONTENT_TYPE);
     }
 
     private void downloadTxtFile(BufferedWriter bufferedWriter) throws IOException {
+        writeContent(bufferedWriter, TXT_CONTENT, DOWNLOAD_CONTENT_TYPE);
+    }
+
+    private void writeContent(BufferedWriter bufferedWriter, String content, String contentType) throws IOException {
         bufferedWriter.write(OK_HTTP);
-        bufferedWriter.write("Content-Length: " + TXT_CONTENT.length() + "\n");
-        bufferedWriter.write(DOWNLOAD_CONTENT_TYPE);
+        bufferedWriter.write("Content-Length: " + content.length() + "\n");
+        bufferedWriter.write(contentType);
         bufferedWriter.newLine();
-        bufferedWriter.write(TXT_CONTENT);
+        bufferedWriter.write(content);
         bufferedWriter.newLine();
         bufferedWriter.flush();
     }
