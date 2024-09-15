@@ -4,19 +4,16 @@ import java.nio.charset.StandardCharsets;
 
 public class ConnectionHandler {
 
-    private static final String HTTP_HEADERS =
-            """
-            HTTP/1.1 200OK
-            Date: Mon, 18 Sep 2023 14:08:55 +0200
-            HttpServer: Simple Webserver
-            Content-Length: 8
-            Content-Type: text/plain
-            Content-Disposition: attachment; filename="content.txt"
-            """;
+    private static final String OK_HTTP = "HTTP/1.1 200OK\n";
+    private static final String JSON_CONTENT_TYPE = "Content-Type: text/plain\n";
+    private static final String DOWNLOAD_CONTENT_TYPE = "Content-Type: text/plain\n " +
+            "Content-Disposition: attachment; filename=\"txtfile.txt\"";
 
     private static final String JSON = "{ student: 'Krasulya Maxim'}";
+    private static final String TXT_CONTENT = "Downloaded file";
 
     private final Socket socket;
+    private String endPointPath;
 
     public ConnectionHandler(Socket socket) {
         this.socket = socket;
@@ -40,6 +37,10 @@ public class ConnectionHandler {
 
     private void parseRequest(BufferedReader inputStreamReader) throws IOException {
         var request = inputStreamReader.readLine();
+        if (request != null && !request.isEmpty()) {
+            var endPoints = request.split(" ");
+            endPointPath = endPoints[1];
+        }
 
         while (request != null && !request.isEmpty()) {
             System.out.println(request);
@@ -49,14 +50,34 @@ public class ConnectionHandler {
 
     private void writeResponse(BufferedWriter outputStreamWriter) {
         try {
-            outputStreamWriter.write(HTTP_HEADERS);
-            outputStreamWriter.newLine();
-            outputStreamWriter.write(JSON);
-            outputStreamWriter.newLine();
-            outputStreamWriter.flush();
+            if ("/json".equalsIgnoreCase(endPointPath)) {
+                sendJson(outputStreamWriter);
+            } else if("/download".equalsIgnoreCase(endPointPath)) {
+                downloadTxtFile(outputStreamWriter);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void sendJson(BufferedWriter bufferedWriter) throws IOException {
+        bufferedWriter.write(OK_HTTP);
+        bufferedWriter.write("Content-Length: " + JSON.length() + "\n");
+        bufferedWriter.write(JSON_CONTENT_TYPE);
+        bufferedWriter.newLine();
+        bufferedWriter.write(JSON);
+        bufferedWriter.newLine();
+        bufferedWriter.flush();
+    }
+
+    private void downloadTxtFile(BufferedWriter bufferedWriter) throws IOException {
+        bufferedWriter.write(OK_HTTP);
+        bufferedWriter.write("Content-Length: " + TXT_CONTENT.length() + "\n");
+        bufferedWriter.write(DOWNLOAD_CONTENT_TYPE);
+        bufferedWriter.newLine();
+        bufferedWriter.write(TXT_CONTENT);
+        bufferedWriter.newLine();
+        bufferedWriter.flush();
     }
 }
 
