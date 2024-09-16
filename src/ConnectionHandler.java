@@ -13,16 +13,12 @@ public class ConnectionHandler {
 
     public String getHeader(String text) {
         return "HTTP/1.1 200OK\n" +
-                "Date: Mon, 18 Sep 2023 14:08:55 +0200\n" +
-                "WebServer.HttpServer: Simple Webserver\n" +
                 "Content-Length: " + text.length() + "\n" +
                 "Content-Type: text/html\n";
     }
 
     public String headerWithCookie(String text, int session, int user) {
         return "HTTP/1.1 200OK\n" +
-                "Date: Mon, 18 Sep 2023 14:08:55 +0200\n" +
-                "WebServer.HttpServer: Simple Webserver\n" +
                 "Content-Length: " + text.length() + "\n" +
                 "Content-Type: text/html\n" +
                 "Set-Cookie: " + SESSION_NAME + "=" + session + "_" + user + "; lang=en\n";
