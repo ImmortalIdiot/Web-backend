@@ -5,26 +5,11 @@ import java.util.Random;
 
 public class ConnectionHandler {
 
+    private final Socket SOCKET;
+
     private static final Random RANDOM = new Random();
+
     private static final String SESSION_NAME = "Session";
-
-    private static final int SESSION = generateSessionId();
-    private static final int USER = generateUserUnique();
-
-    public String getHeader(String text) {
-        return "HTTP/1.1 200OK\n" +
-                "Content-Length: " + text.length() + "\n" +
-                "Content-Type: text/html\n";
-    }
-
-    public String headerWithCookie(String text, int session, int user) {
-        return "HTTP/1.1 200OK\n" +
-                "Content-Length: " + text.length() + "\n" +
-                "Content-Type: text/html\n" +
-                "Set-Cookie: " + SESSION_NAME + "=" + session + "_" + user + "; lang=en\n";
-    }
-
-    private final Socket socket;
 
     private static final String SEND_COOKIE = """
             <!DOCTYPE html>
@@ -39,8 +24,21 @@ public class ConnectionHandler {
             </html>
             """;
 
+    public String classicalHeader(String text) {
+        return "HTTP/1.1 200OK\n" +
+                "Content-Length: " + text.length() + "\n" +
+                "Content-Type: text/html\n";
+    }
+
+    public String cookieHeader(String text, int session, int user) {
+        return "HTTP/1.1 200OK\n" +
+                "Content-Length: " + text.length() + "\n" +
+                "Content-Type: text/html\n" +
+                "Set-Cookie: " + SESSION_NAME + "=" + session + "_" + user + "; lang=en\n";
+    }
+
     public ConnectionHandler(Socket socket) {
-        this.socket = socket;
+        this.SOCKET = socket;
         handle();
     }
 
@@ -51,17 +49,17 @@ public class ConnectionHandler {
     public void handle() {
         try {
             var inputStreamReader = new BufferedReader(
-                    new InputStreamReader(socket.getInputStream(), StandardCharsets.US_ASCII));
+                    new InputStreamReader(SOCKET.getInputStream(), StandardCharsets.US_ASCII));
 
             var outputStreamWriter = new BufferedWriter(
-                    new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.US_ASCII));
+                    new OutputStreamWriter(SOCKET.getOutputStream(), StandardCharsets.US_ASCII));
 
             var request = parseRequest(inputStreamReader);
             var session = containSession(request);
 
             if (session == null) {
                 writeResponse(outputStreamWriter, SEND_COOKIE,
-                        headerWithCookie(SEND_COOKIE, SESSION, USER));
+                        cookieHeader(SEND_COOKIE, generateSessionId(), generateUserUnique()));
             } else {
                 var response = "<!DOCTYPE html>\n" +
                         "<html lang=\"en\">\n" +
@@ -73,9 +71,8 @@ public class ConnectionHandler {
                         "<p>Hello " + session + "</p>\n" +
                         "</body>\n" +
                         "</html>\n";
-                writeResponse(outputStreamWriter, response, getHeader(response));
+                writeResponse(outputStreamWriter, response, classicalHeader(response));
             }
-
             outputStreamWriter.flush();
         } catch (IOException e) { throw new RuntimeException(e); }
     }
