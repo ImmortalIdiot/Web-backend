@@ -6,8 +6,10 @@ public class ConnectionHandler {
 
     private static final String OK_HTTP = "HTTP/1.1 200OK\n";
     private static final String JSON_CONTENT_TYPE = "Content-Type: text/plain\n";
-    private static final String DOWNLOAD_CONTENT_TYPE = "Content-Type: text/plain\n " +
-            "Content-Disposition: attachment; filename=\"txtfile.txt\"";
+    private static final String DOWNLOAD_CONTENT_TYPE = """
+            Content-Type: text/plain
+            Content-Disposition: attachment; filename=test.txt
+            """;
 
     private static final String JSON = "{ student: 'Krasulya Maxim'}";
     private static final String TXT_CONTENT = "Downloaded file";
